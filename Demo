@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HardBlock - Prototipo</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración de Tailwind para colores personalizados y fuente Inter -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'hb-dark-blue': '#1A202C', // Fondo principal
+                        'hb-blue': '#2B6CB0',     // Azul para botones y acentos
+                        'hb-violet': '#805AD5',   // Violeta para acentos
+                        'hb-light-blue': '#4299E1', // Azul más claro
+                        'hb-gray': '#A0AEC0',     // Gris para texto secundario
+                        'hb-light-gray': '#EDF2F7', // Gris claro para fondos de tarjetas
+                        'hb-green': '#38A169',    // Verde para éxito
+                        'hb-orange-light': '#FBD38D', // Naranja claro para acentos sutiles (similar al "Get Code")
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos generales para asegurar que el cuerpo ocupe toda la pantalla */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1A202C; /* hb-dark-blue */
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Alinea al inicio para permitir scroll si el contenido es largo */
+            padding: 2rem 0; /* Añade padding vertical */
+        }
+        .app-container {
+            width: 100%;
+            max-width: 420px; /* Ancho típico de móvil */
+            background-color: #2D3748; /* Un gris más oscuro para el contenedor de la app */
+            border-radius: 1.5rem; /* rounded-3xl */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            overflow: hidden; /* Oculta el desbordamiento para los bordes redondeados */
+        }
+
+        /* Ocultar todas las pantallas por defecto */
+        .screen {
+            display: none;
+        }
+        /* Mostrar solo la pantalla activa */
+        .screen.active {
+            display: block;
+        }
+
+        /* Estilos para iconos SVG simples */
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* Estilo para los botones de login de terceros */
+        .social-login-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #4A5568; /* Gris oscuro para el borde */
+            background-color: transparent;
+            color: white;
+            font-weight: 600;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .social-login-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #805AD5; /* hb-violet */
+        }
+        .social-login-btn img {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+        }
+    </style>
+</head>
+<body class="font-sans bg-hb-dark-blue text-white flex items-center justify-center min-h-screen p-4">
+
+    <div id="app-container" class="app-container">
+
+        <!-- Pantalla de Inicio de Sesión -->
+        <section id="login-screen" class="screen active p-6">
+            <h1 class="text-4xl font-bold text-hb-light-blue mb-4 text-center">¡Bienvenido!</h1>
+            <p class="text-md text-hb-gray mb-8 text-center">Continúa en HardBlock con email, Google, Github, o billetera Web3.</p>
+
+            <div class="space-y-4 mb-6">
+                <input type="email" placeholder="Ingresa tu dirección de correo" class="w-full p-3 rounded-lg bg-hb-dark-blue border border-hb-gray focus:outline-none focus:border-hb-violet text-white">
+                <div class="flex items-center space-x-2">
+                    <input type="text" placeholder="Ingresa el código" class="flex-1 p-3 rounded-lg bg-hb-dark-blue border border-hb-gray focus:outline-none focus:border-hb-violet text-white">
+                    <button class="bg-transparent text-hb-orange-light px-4 py-2 rounded-lg font-semibold hover:text-white transition-colors duration-200">Obtener Código</button>
+                </div>
+                <button id="email-login-btn" class="w-full bg-hb-blue text-white py-3 rounded-lg text-lg font-semibold hover:bg-hb-violet transition-colors duration-200">
+                    Continuar
+                </button>
+            </div>
+
+            <div class="flex items-center mb-6">
+                <div class="flex-grow border-t border-hb-gray"></div>
+                <span class="flex-shrink mx-4 text-hb-gray">o</span>
+                <div class="flex-grow border-t border-hb-gray"></div>
+            </div>
+
+            <div class="space-y-3">
+                <button id="google-login-btn" class="social-login-btn">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png" alt="Google Icon">
+                    Continuar con Google
+                </button>
+                <button id="github-login-btn" class="social-login-btn">
+                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="Github Icon">
+                    Continuar con Github
+                </button>
+                <button id="wallet-login-btn" class="social-login-btn">
+                    <!-- Icono de billetera simple (SVG) -->
+                    <svg class="icon mr-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 18V6c0-1.1-.9-2-2-2H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2zm-10-4H5v-2h6v2zm-6-4h6V8H5v2zm14 4h-6v-2h6v2zm0-4h-6V8h6v2z"/>
+                    </svg>
+                    Continuar con Billetera
+                </button>
+            </div>
+
+            <p class="text-xs text-hb-gray mt-8 text-center">
+                Al crear una cuenta, aceptas nuestros
+                <a href="#" class="text-hb-light-blue hover:underline">Términos de Servicio</a> y
+                <a href="#" class="text-hb-light-blue hover:underline">Política de Privacidad</a>.
+            </p>
+        </section>
+
+        <!-- Pantalla 1: Catálogo de Computadoras Tokenizadas -->
+        <section id="catalog-screen" class="screen p-6">
+            <header class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-hb-light-blue">HardBlock</h1>
+                <button id="goto-dashboard-btn" class="p-2 rounded-full bg-hb-blue hover:bg-hb-violet transition-colors duration-200">
+                    <!-- Icono de usuario simple (SVG) -->
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <h2 class="text-xl font-semibold mb-4">Computadoras Tokenizadas</h2>
+
+            <div class="space-y-4">
+                <!-- Tarjeta de Computadora 1 -->
+                <div class="computer-card bg-hb-light-gray text-hb-dark-blue p-4 rounded-xl shadow-md flex items-center space-x-4 cursor-pointer" data-computer-id="1">
+                    <img src="https://placehold.co/80x80/667EEA/FFFFFF?text=PC1" alt="Gaming Rig X" class="w-20 h-20 rounded-lg object-cover">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold">Gaming Rig X</h3>
+                        <p class="text-sm text-hb-gray">ROI Proyectado: <span class="font-semibold text-hb-green">15%</span></p>
+                        <p class="text-sm text-hb-gray">Valor Total: <span class="font-semibold">$2,000 USD</span></p>
+                    </div>
+                    <button class="bg-hb-blue text-white px-4 py-2 rounded-lg text-sm hover:bg-hb-violet transition-colors duration-200">Ver Detalles</button>
+                </div>
+
+                <!-- Tarjeta de Computadora 2 -->
+                <div class="computer-card bg-hb-light-gray text-hb-dark-blue p-4 rounded-xl shadow-md flex items-center space-x-4 cursor-pointer" data-computer-id="2">
+                    <img src="https://placehold.co/80x80/805AD5/FFFFFF?text=PC2" alt="Workstation Pro" class="w-20 h-20 rounded-lg object-cover">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold">Workstation Pro</h3>
+                        <p class="text-sm text-hb-gray">ROI Proyectado: <span class="font-semibold text-hb-green">12%</span></p>
+                        <p class="text-sm text-hb-gray">Valor Total: <span class="font-semibold">$5,000 USD</span></p>
+                    </div>
+                    <button class="bg-hb-blue text-white px-4 py-2 rounded-lg text-sm hover:bg-hb-violet transition-colors duration-200">Ver Detalles</button>
+                </div>
+
+                <!-- Tarjeta de Computadora 3 -->
+                <div class="computer-card bg-hb-light-gray text-hb-dark-blue p-4 rounded-xl shadow-md flex items-center space-x-4 cursor-pointer" data-computer-id="3">
+                    <img src="https://placehold.co/80x80/4299E1/FFFFFF?text=PC3" alt="Render Farm Unit" class="w-20 h-20 rounded-lg object-cover">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold">Render Farm Unit</h3>
+                        <p class="text-sm text-hb-gray">ROI Proyectado: <span class="font-semibold text-hb-green">18%</span></p>
+                        <p class="text-sm text-hb-gray">Valor Total: <span class="font-semibold">$12,000 USD</span></p>
+                    </div>
+                    <button class="bg-hb-blue text-white px-4 py-2 rounded-lg text-sm hover:bg-hb-violet transition-colors duration-200">Ver Detalles</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pantalla 2: Ficha del Computador -->
+        <section id="detail-screen" class="screen p-6">
+            <header class="flex items-center mb-6">
+                <button id="back-to-catalog-btn" class="p-2 rounded-full bg-hb-blue hover:bg-hb-violet transition-colors duration-200 mr-4">
+                    <!-- Icono de flecha hacia atrás (SVG) -->
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                    </svg>
+                </button>
+                <h2 class="text-2xl font-bold text-hb-light-blue" id="detail-computer-name"></h2>
+            </header>
+
+            <!-- Mensaje de éxito de inversión -->
+            <div id="investment-success-message" class="hidden bg-hb-green text-white p-3 rounded-lg text-center mb-4 shadow-md">
+                ¡Haz invertido $10.00 USD!
+            </div>
+
+            <div class="bg-hb-light-gray text-hb-dark-blue p-4 rounded-xl shadow-md">
+                <img id="detail-computer-image" src="https://placehold.co/300x200/667EEA/FFFFFF?text=PC" alt="Computer Image" class="w-full h-48 object-cover rounded-lg mb-4">
+                <p class="text-md mb-2">ROI Proyectado: <span class="font-bold text-hb-green" id="detail-roi"></span></p>
+                <p class="text-md mb-2">Valor Total: <span class="font-bold" id="detail-value"></span></p>
+                <p class="text-md mb-2">Tokens Emitidos: <span class="font-bold" id="detail-tokens-issued"></span></p>
+                <p class="text-md mb-2">Tokens Disponibles: <span class="font-bold" id="detail-tokens-available"></span></p>
+                <p class="text-md mb-4">Precio por Token: <span class="font-bold">$10.00 USD</span></p>
+
+                <!-- Nuevo: Tokens comprados por el usuario para este activo -->
+                <p class="text-md mb-2">Tokens Comprados por ti: <span class="font-bold text-hb-violet" id="detail-user-tokens-bought">0</span></p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                    <div id="tokens-progress-bar" class="bg-hb-violet h-2.5 rounded-full" style="width: 0%;"></div>
+                </div>
+
+                <button id="invest-btn" class="w-full bg-hb-violet text-white py-3 rounded-lg text-lg font-semibold hover:bg-hb-blue transition-colors duration-200">
+                    Invertir Ahora
+                </button>
+            </div>
+        </section>
+
+        <!-- Pantalla 4: Panel de Usuario -->
+        <section id="dashboard-screen" class="screen p-6">
+            <header class="flex items-center mb-6">
+                <button id="back-to-catalog-from-dashboard-btn" class="p-2 rounded-full bg-hb-blue hover:bg-hb-violet transition-colors duration-200 mr-4">
+                    <!-- Icono de flecha hacia atrás (SVG) -->
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                    </svg>
+                </button>
+                <h2 class="text-2xl font-bold text-hb-light-blue">Mi Panel</h2>
+            </header>
+
+            <div class="bg-hb-light-gray text-hb-dark-blue p-4 rounded-xl shadow-md mb-6">
+                <p class="text-md mb-2">Inversión Total: <span class="font-bold">$100.00 USD</span></p>
+                <p class="text-md">Retorno Proyectado Total: <span class="font-bold text-hb-green">$15.00 USD</span></p>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-4 text-hb-light-blue">Mis Tokens</h3>
+            <div id="user-tokens-list" class="space-y-3">
+                <!-- Ejemplo de token comprado (se llenará dinámicamente) -->
+                <div class="bg-hb-light-gray text-hb-dark-blue p-3 rounded-lg flex justify-between items-center">
+                    <div>
+                        <p class="font-semibold">Gaming Rig X</p>
+                        <p class="text-sm text-hb-gray">Tokens: 10 ($100.00 USD)</p>
+                    </div>
+                    <p class="font-bold text-hb-green">Retorno: $15.00 USD</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Stellar Coin Payment Confirmation Modal -->
+    <div id="stellar-payment-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white text-hb-dark-blue p-6 rounded-xl shadow-lg w-11/12 max-w-sm text-center">
+            <h3 class="text-xl font-bold mb-4">Confirmar Inversión</h3>
+            <p class="text-lg mb-2">Estás a punto de invertir <span class="font-bold">$10.00 USD</span></p>
+            <p class="text-md text-hb-gray mb-6">Usando tu billetera Stellar Coin</p>
+            <div class="flex justify-around space-x-4">
+                <button id="confirm-stellar-payment-btn" class="flex-1 bg-hb-violet text-white py-2 rounded-lg font-semibold hover:bg-hb-blue transition-colors duration-200">
+                    Confirmar Pago
+                </button>
+                <button id="cancel-stellar-payment-btn" class="flex-1 bg-hb-gray text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-200">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos simulados de computadoras
+        const computers = {
+            1: {
+                name: "Gaming Rig X",
+                roi: "15%",
+                value: "$50,000 USD",
+                tokensIssued: 5000, // Cambiado a número para cálculos
+                tokensAvailable: 2500, // Cambiado a número para cálculos
+                userTokensBought: 0, // Nuevo: tokens comprados por el usuario para este activo
+                image: "https://placehold.co/300x200/667EEA/FFFFFF?text=Gaming+Rig+X"
+            },
+            2: {
+                name: "Workstation Pro",
+                roi: "12%",
+                value: "$75,000 USD",
+                tokensIssued: 7500,
+                tokensAvailable: 4000,
+                userTokensBought: 0,
+                image: "https://placehold.co/300x200/805AD5/FFFFFF?text=Workstation+Pro"
+            },
+            3: {
+                name: "Render Farm Unit",
+                roi: "18%",
+                value: "$120,000 USD",
+                tokensIssued: 12000,
+                tokensAvailable: 6000,
+                userTokensBought: 0,
+                image: "https://placehold.co/300x200/4299E1/FFFFFF?text=Render+Farm+Unit"
+            }
+        };
+
+        // Estado de la aplicación (simulado)
+        let currentUserTokens = []; // Almacena los tokens comprados por el usuario
+
+        // Declaración de variables para elementos del DOM
+        let loginScreen, catalogScreen, detailScreen, dashboardScreen; // 'returnScreen' eliminado
+        let detailComputerName, detailComputerImage, detailRoi, detailValue, detailTokensIssued, detailTokensAvailable, detailUserTokensBought, tokensProgressBar, investmentSuccessMessage;
+        let stellarPaymentModal, confirmStellarPaymentBtn, cancelStellarPaymentBtn;
+        let emailLoginBtn, googleLoginBtn, githubLoginBtn, walletLoginBtn;
+        let userTokensList; // Declarar aquí para que sea accesible globalmente
+
+        // Función para mostrar una pantalla y ocultar las demás
+        function showScreen(screenToShow) {
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => {
+                screen.classList.remove('active');
+            });
+            screenToShow.classList.add('active');
+        }
+
+        // --- Lógica de Inicio de Sesión ---
+        function simulateLogin() {
+            showScreen(catalogScreen);
+        }
+
+        // --- Lógica del Catálogo y Detalles ---
+        function updateDetailScreen(computerId) {
+            const computer = computers[computerId];
+            if (computer) {
+                detailComputerName.textContent = computer.name;
+                detailComputerImage.src = computer.image;
+                detailRoi.textContent = computer.roi;
+                detailValue.textContent = computer.value;
+                detailTokensIssued.textContent = computer.tokensIssued.toLocaleString(); // Formato de número
+                detailTokensAvailable.textContent = computer.tokensAvailable.toLocaleString(); // Formato de número
+                detailUserTokensBought.textContent = computer.userTokensBought.toLocaleString(); // Tokens comprados por el usuario
+
+                // Actualizar barra de progreso
+                const totalTokensIssued = computer.tokensIssued;
+                const tokensCurrentlyAvailable = computer.tokensAvailable;
+                const tokensSold = totalTokensIssued - tokensCurrentlyAvailable;
+                const percentageSold = (tokensSold / totalTokensIssued) * 100;
+                tokensProgressBar.style.width = `${percentageSold}%`;
+
+                // Mostrar la pantalla de detalle
+                showScreen(detailScreen);
+            }
+        }
+
+        // Función para actualizar el panel de usuario
+        function updateDashboard() {
+            userTokensList.innerHTML = ''; // Limpiar lista
+            let totalInvested = 0;
+            let totalProjectedReturn = 0;
+
+            if (currentUserTokens.length === 0) {
+                userTokensList.innerHTML = '<p class="text-hb-gray text-center">Aún no has invertido en ningún token.</p>';
+            } else {
+                currentUserTokens.forEach(item => {
+                    const tokenValue = 10; // $10 USD por token
+                    totalInvested += item.tokens * tokenValue;
+                    totalProjectedReturn += parseFloat(item.projectedReturn);
+
+                    const tokenItem = document.createElement('div');
+                    tokenItem.className = 'bg-hb-light-gray text-hb-dark-blue p-3 rounded-lg flex justify-between items-center';
+                    tokenItem.innerHTML = `
+                        <div>
+                            <p class="font-semibold">${item.name}</p>
+                            <p class="text-sm text-hb-gray">Tokens: ${item.tokens} ($${(item.tokens * tokenValue).toFixed(2)} USD)</p>
+                        </div>
+                        <p class="font-bold text-hb-green">Retorno: $${item.projectedReturn} USD</p>
+                    `;
+                    userTokensList.appendChild(tokenItem);
+                });
+            }
+
+            document.querySelector('#dashboard-screen .bg-hb-light-gray p:nth-child(1) span').textContent = `$${totalInvested.toFixed(2)} USD`;
+            document.querySelector('#dashboard-screen .bg-hb-light-gray p:nth-child(2) span').textContent = `$${totalProjectedReturn.toFixed(2)} USD`;
+        }
+
+        // Asegurar que el DOM esté completamente cargado antes de inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            // Asignar referencias a los elementos del DOM aquí
+            loginScreen = document.getElementById('login-screen');
+            catalogScreen = document.getElementById('catalog-screen');
+            detailScreen = document.getElementById('detail-screen');
+            // returnScreen = document.getElementById('return-screen'); // Eliminado
+            dashboardScreen = document.getElementById('dashboard-screen');
+
+            detailComputerName = document.getElementById('detail-computer-name');
+            detailComputerImage = document.getElementById('detail-computer-image');
+            detailRoi = document.getElementById('detail-roi');
+            detailValue = document.getElementById('detail-value');
+            detailTokensIssued = document.getElementById('detail-tokens-issued');
+            detailTokensAvailable = document.getElementById('detail-tokens-available');
+            detailUserTokensBought = document.getElementById('detail-user-tokens-bought');
+            tokensProgressBar = document.getElementById('tokens-progress-bar');
+            investmentSuccessMessage = document.getElementById('investment-success-message');
+
+            stellarPaymentModal = document.getElementById('stellar-payment-modal');
+            confirmStellarPaymentBtn = document.getElementById('confirm-stellar-payment-btn');
+            cancelStellarPaymentBtn = document.getElementById('cancel-stellar-payment-btn');
+
+            emailLoginBtn = document.getElementById('email-login-btn');
+            googleLoginBtn = document.getElementById('google-login-btn');
+            githubLoginBtn = document.getElementById('github-login-btn');
+            walletLoginBtn = document.getElementById('wallet-login-btn');
+            userTokensList = document.getElementById('user-tokens-list');
+
+
+            // Configurar los event listeners aquí, después de que los elementos estén disponibles
+            emailLoginBtn.addEventListener('click', simulateLogin);
+            googleLoginBtn.addEventListener('click', simulateLogin);
+            githubLoginBtn.addEventListener('click', simulateLogin);
+            walletLoginBtn.addEventListener('click', simulateLogin);
+
+            document.querySelectorAll('.computer-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    currentComputerId = card.dataset.computerId; // Guardar el ID de la computadora actual
+                    updateDetailScreen(currentComputerId);
+                });
+            });
+
+            document.querySelectorAll('.computer-card button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    currentComputerId = button.closest('.computer-card').dataset.computerId;
+                    updateDetailScreen(currentComputerId);
+                });
+            });
+
+            document.getElementById('invest-btn').addEventListener('click', () => {
+                stellarPaymentModal.classList.remove('hidden'); // Mostrar el modal
+            });
+
+            confirmStellarPaymentBtn.addEventListener('click', () => {
+                stellarPaymentModal.classList.add('hidden'); // Ocultar el modal
+
+                const computer = computers[currentComputerId];
+                if (computer) {
+                    const tokenValue = 10; // $10 USD por token
+                    const tokensToBuy = 1; // Siempre compramos 1 token por esta simulación
+
+                    // Actualizar tokens disponibles y comprados por el usuario
+                    if (computer.tokensAvailable >= tokensToBuy) {
+                        computer.tokensAvailable -= tokensToBuy;
+                        computer.userTokensBought += tokensToBuy;
+
+                        // Actualizar el estado de los tokens del usuario para el dashboard
+                        const existingInvestment = currentUserTokens.find(item => item.id === currentComputerId);
+                        if (existingInvestment) {
+                            existingInvestment.tokens += tokensToBuy;
+                            existingInvestment.projectedReturn = (existingInvestment.tokens * tokenValue * (parseFloat(computer.roi.replace('%', '')) / 100)).toFixed(2);
+                        } else {
+                            currentUserTokens.push({
+                                id: currentComputerId,
+                                name: computer.name,
+                                tokens: tokensToBuy,
+                                projectedReturn: (tokensToBuy * tokenValue * (parseFloat(computer.roi.replace('%', '')) / 100)).toFixed(2)
+                            });
+                        }
+
+                        // Mostrar mensaje de éxito
+                        investmentSuccessMessage.classList.remove('hidden');
+                        setTimeout(() => {
+                            investmentSuccessMessage.classList.add('hidden');
+                        }, 3000); // Ocultar después de 3 segundos
+
+                        // Volver a actualizar la pantalla de detalle para reflejar los cambios
+                        updateDetailScreen(currentComputerId);
+
+                    } else {
+                        // Aquí podrías mostrar un mensaje de "No hay tokens disponibles"
+                        console.log("No hay tokens disponibles para este activo.");
+                    }
+                }
+            });
+
+            cancelStellarPaymentBtn.addEventListener('click', () => {
+                stellarPaymentModal.classList.add('hidden'); // Ocultar el modal
+            });
+
+            document.getElementById('back-to-catalog-btn').addEventListener('click', () => {
+                showScreen(catalogScreen);
+            });
+            document.getElementById('back-to-catalog-from-dashboard-btn').addEventListener('click', () => {
+                showScreen(catalogScreen);
+            });
+
+            document.getElementById('goto-dashboard-btn').addEventListener('click', () => {
+                updateDashboard();
+                showScreen(dashboardScreen);
+            });
+
+            // El botón 'goto-dashboard-from-return-btn' y su listener han sido eliminados ya que la pantalla de retorno no existe.
+
+            updateDashboard(); // Inicializar el dashboard al cargar por primera vez
+            showScreen(loginScreen); // Mostrar la pantalla de inicio de sesión al cargar la página
+        });
+
+    </script>
+</body>
+</html>
+
+
